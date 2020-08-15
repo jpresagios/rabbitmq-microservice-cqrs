@@ -1,0 +1,6 @@
+API_PORT=3007
+MONGODB_URI=mongodb://localhost:32017/sports-db
+AMQP_URL=amqp://localhost:5672
+ELASTICSEARCH_URL=http://localhost:9200
+ELASTICSEARCH_INDEX=news
+
