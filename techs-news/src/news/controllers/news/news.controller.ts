@@ -18,6 +18,7 @@ export class NewsController {
       urls: [env.AMQP_URL],
       queue: 'news_queue',
       queueOptions: { durable: false },
+      noAck: false,
     },
   })
   client: ClientProxy;
@@ -35,14 +36,7 @@ export class NewsController {
     try {
       const result = this.techServices.create(news);
 
-      this.client.send({ cmd: 'news.techs' }, news).subscribe({
-        next: result => {
-          this.logger.log(result);
-        },
-        error: error => {
-          this.logger.error(error);
-        },
-      });
+      this.client.emit({ cmd: 'news.techs' }, news);
 
       return result;
     } catch (error) {
