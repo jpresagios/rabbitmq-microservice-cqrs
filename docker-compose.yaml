@@ -1,0 +1,65 @@
+version: "3"
+services:
+  tech_service:
+    build: ./techs-news
+    container_name: tech_service
+    ports:
+      - "3002:3002"
+    environment:
+      - AMQP_URL=amqp://rabbitmq:5672
+      - API_PORT=3002
+      - MONGODB_URI=mongodb://mongodb:27017/techs-db
+
+    depends_on:
+      - mongodb
+      - rabbitmq
+
+  sport_service:
+    build: ./sports-news
+    container_name: sport_service
+    ports:
+      - "3003:3003"
+    environment:
+      - AMQP_URL=amqp://rabbitmq:5672
+      - API_PORT=3003
+      - MONGODB_URI=mongodb://mongodb:27017/sports-db
+
+    depends_on:
+      - mongodb
+      - rabbitmq
+
+  search_engine:
+    build: ./search-engine
+    container_name: search_engine
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongodb
+      - elastic
+      - rabbitmq
+    command: "./elastic-is-running.sh && npm run start"
+
+    environment:
+      - ELASTICSEARCH_URL=http://elastic:9200
+      - ELASTICSEARCH_INDEX=news
+      - AMQP_URL=amqp://rabbitmq:5672
+      - API_PORT=3000
+
+  mongodb:
+    image: mongo
+    ports:
+      - "27018:27017"
+
+  elastic:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.8.1
+    environment:
+      - discovery.type=single-node
+    ports:
+      - "9201:9200"
+    expose:
+      - "9200"
+
+  rabbitmq:
+    image: rabbitmq
+    ports:
+      - "25672:5672"
